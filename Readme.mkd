@@ -1,41 +1,71 @@
 # 🧠 AI Assignment – Footfall Counter using Computer Vision
 
 A smart, lightweight **footfall counter** that detects **people** in a video, tracks them across frames, and counts **IN/OUT** when they cross a virtual **ROI line**.  
-Built with **YOLOv8**, **OpenCV**, and a **custom centroid tracker**—no external trackers required.
+Built with **YOLOv8**, **OpenCV**, and a **custom centroid tracker** — no external tracking frameworks required.
 
 ---
 
 ## ✅ Brief Description of the Approach
 
 1. **Detection (YOLOv8n):**  
-   Person-only detection (class 0) with tunable confidence/IoU thresholds for speed and accuracy.
+   Person-only detection (class 0) using YOLOv8n for optimal speed and accuracy.
 
-2. **Tracking (Custom Centroid):**  
-   Simple nearest-neighbor ID linking with a max-link distance and short-term memory for stable IDs. Faded boxes visualize recently lost tracks.
+2. **Tracking (Custom Centroid Tracker):**  
+   A lightweight centroid tracker matches detections between consecutive frames based on the nearest centroid distance.  
+   It assigns stable **unique IDs** to people and maintains their positions even when momentarily lost (fade effect).
 
-3. **ROI & Counting Logic (8 Directions):**  
-   - First seconds of the video estimate a **dominant flow direction**.  
-   - System builds a **single ROI centerline** for each compass direction (**N, NE, E, SE, S, SW, W, NW**), auto-generated if not specified.  
-   - For each tracked ID, the **signed distance** to an ROI line is monitored; a **zero-crossing** indicates a pass.  
-   - Crossing along **+normal** counts as **IN**, opposite as **OUT**.  
-   - **Hysteresis margin**, **cooldown frames**, and **minimum perpendicular motion** guard against double counts and noise.
+3. **ROI & Direction Setup:**  
+   - The system automatically detects the **dominant movement direction** (e.g., NE, S, W) using early video frames.  
+   - It then creates **8 directional ROI lines** (N, NE, E, SE, S, SW, W, NW).  
+   - Each ROI acts as a **virtual counting barrier** — crossings trigger IN/OUT events.  
+   - A YAML config (`roi_config.yaml`) allows adjusting ROI height, sensitivity, and thresholds.
 
-4. **UX & Outputs:**  
-   - On-video HUD with **IN/OUT totals**, **quadrant mini-counters**, and a small **crossing histogram**.  
-   - **Event snapshots** for auditability.  
-   - **CSV summaries** for center totals and per-quadrant breakdown.
+4. **Event Logging & Visualization:**  
+   - Visual overlay shows bounding boxes, IDs, IN/OUT rings, and total counts.  
+   - Every crossing event is logged to `events_humans.csv` and snapshots are saved to `events_snaps/`.  
+   - A mini histogram shows IN/OUT frequency per ROI segment.
 
 ---
 
-## 🎥 Video Source Used (link or description)
+## 🧮 Explanation of Counting Logic
 
-> Replace this section with your actual source.
+The **counting logic** is based on **signed distance transitions** across a virtual ROI line:
+
+1. **ROI Centerline:**  
+   Each ROI (e.g., East, North, etc.) has a virtual line dividing two sides of the scene.
+
+2. **Signed Distance Calculation:**  
+   For every detected person (centroid), the program computes a **signed perpendicular distance (s)** from their position to the ROI line.  
+   - A **positive** distance means the person is on one side of the ROI.  
+   - A **negative** distance means they are on the opposite side.
+
+3. **Detecting a Crossing:**  
+   When the sign of the distance changes (from + → – or – → +), it indicates the person has crossed the ROI line.  
+   - If the motion is along the **positive normal vector**, it counts as an **IN** event.  
+   - If it moves against the normal, it counts as an **OUT** event.
+
+4. **Noise Reduction (Hysteresis & Cooldown):**
+   - **Hysteresis margin:** Ensures only meaningful perpendicular motion (beyond a threshold) is considered a valid crossing.  
+   - **Cooldown frames:** Prevents double counting if the same person hovers near the line.
+
+5. **Quadrant-Based Aggregation:**  
+   Each crossing is also assigned to one of the four **quadrants (NE, NW, SE, SW)** for additional localized analytics.  
+   These are summarized in `summary_humans_quadrants.csv`.
+
+In essence:
+> A person is counted **once per direction** when their centroid crosses a virtual line, confirmed by a sign change in distance, sufficient motion, and cooldown timing.
+
+---
+
+## 🎥 Video Source Used
+
+> Replace this section with your actual source information.
 
 - **Source:** Vimeo-people walking - zeal
-- **Link:** https://vimeo.com/1117870699
-- **Notes:** 1920×1080, ~30 FPS, bidirectional flow near a single doorway
+- **Link:**http://vimeo.com/1117870699
+- **Notes:** 1920×1080 @ 30 FPS, two-way pedestrian traffic
 
-*(If you used a local file like `input.mp4`, describe it briefly: e.g., “Recorded at XYZ canteen entrance on Oct 2025, ~2 min clip.”)*
+
 
 ---
 
@@ -43,25 +73,28 @@ Built with **YOLOv8**, **OpenCV**, and a **custom centroid tracker**—no extern
 
 | File / Folder                      | Description                                                |
 |-----------------------------------|------------------------------------------------------------|
-| `footfall_counter.ipynb`          | Main notebook with full pipeline                           |
+| `footfall_counter.ipynb`          | Main notebook with the full detection–tracking–counting pipeline |
 | `roi_config.yaml`                 | Global + ROI configuration (auto-created if missing)       |
-| `yolov8n.pt`                      | YOLOv8n weights                                            |
-| `input.mp4`                       | Input video                                                |
-| `output_footfall.mp4`             | Processed video with overlays (generated)                  |
-| `events_humans.csv`               | Event-level logs with snapshots (generated)                |
-| `summary_humans.csv`              | Center IN/OUT summary (generated)                          |
-| `summary_humans_quadrants.csv`    | NE/NW/SE/SW IN/OUT summary (generated)                     |
-| `events_snaps/`                   | Event snapshots (generated)                                |
+| `yolov8n.pt`                      | YOLOv8n model weights                                      |
+| `input.mp4`                       | Input video file                                           |
+| `output_footfall.mp4`             | Output video with live overlays and counters               |
+| `events_humans.csv`               | Detailed log of all detected IN/OUT events                 |
+| `summary_humans.csv`              | Overall IN/OUT counts summary                              |
+| `summary_humans_quadrants.csv`    | Per-quadrant IN/OUT summary                                |
+| `events_snaps/`                   | Auto-saved event snapshots                                 |
 | `LICENSE`                         | License file                                               |
 | `README.mkd`                      | This documentation                                         |
 
-> Note: Large binaries (`.mp4`, `.pt`) are present. Consider **Git LFS** for reliability.
+> Large files like `.mp4` or `.pt` should use **Git LFS** for safe versioning.
 
 ---
 
 ## ⚙️ Requirements
 
-- **Python** 3.8>=
-- **Libraries:** `ultralytics`, `opencv-python`, `numpy`, `pandas`, `pyyaml`
-
-*(Optional `requirements.txt`)*:
+- **Python:** 3.8 or higher  
+- **Libraries:**  
+  - ultralytics  
+  - opencv-python  
+  - numpy  
+  - pandas  
+  - pyyaml  
