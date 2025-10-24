@@ -1,52 +1,67 @@
 # 🧠 AI Assignment – Footfall Counter using Computer Vision
 
-## 📌 Project Overview
-This project implements a **Computer Vision–based Footfall Counter** that detects, tracks, and counts the number of people entering and exiting a defined region (ROI) in a video.
-
-It uses **YOLOv8** for human detection and a **custom centroid tracker** for maintaining IDs across frames. A **virtual ROI line** is drawn across the scene, and people are counted when crossing the line in either direction.
+A smart, lightweight **footfall counter** that detects **people** in a video, tracks them across frames, and counts **IN/OUT** when they cross a virtual **ROI line**.  
+Built with **YOLOv8**, **OpenCV**, and a **custom centroid tracker**—no external trackers required.
 
 ---
 
-## 🎯 Objectives
-This project fulfills the following assignment objectives:
+## ✅ Brief Description of the Approach
 
-1. Detect humans in a video stream. ✅  
-2. Track their movement frame by frame. ✅  
-3. Define a virtual **Region of Interest (ROI)**. ✅  
-4. Count how many people enter and exit by crossing the ROI. ✅  
-5. Display real-time visual overlays and final statistics. ✅  
+1. **Detection (YOLOv8n):**  
+   Person-only detection (class 0) with tunable confidence/IoU thresholds for speed and accuracy.
+
+2. **Tracking (Custom Centroid):**  
+   Simple nearest-neighbor ID linking with a max-link distance and short-term memory for stable IDs. Faded boxes visualize recently lost tracks.
+
+3. **ROI & Counting Logic (8 Directions):**  
+   - First seconds of the video estimate a **dominant flow direction**.  
+   - System builds a **single ROI centerline** for each compass direction (**N, NE, E, SE, S, SW, W, NW**), auto-generated if not specified.  
+   - For each tracked ID, the **signed distance** to an ROI line is monitored; a **zero-crossing** indicates a pass.  
+   - Crossing along **+normal** counts as **IN**, opposite as **OUT**.  
+   - **Hysteresis margin**, **cooldown frames**, and **minimum perpendicular motion** guard against double counts and noise.
+
+4. **UX & Outputs:**  
+   - On-video HUD with **IN/OUT totals**, **quadrant mini-counters**, and a small **crossing histogram**.  
+   - **Event snapshots** for auditability.  
+   - **CSV summaries** for center totals and per-quadrant breakdown.
 
 ---
 
-## ⚙️ Tools & Libraries Used
-- **Language:** Python 3.10+
-- **Libraries:**
-  - `ultralytics` (YOLOv8)
-  - `opencv-python`
-  - `numpy`
-  - `pandas`
-  - `pyyaml`
-- **Tracker:** Custom Centroid Tracker (lightweight and efficient)
-- **Visualization:** OpenCV overlays and live HUD
+## 🎥 Video Source Used (link or description)
+
+> Replace this section with your actual source.
+
+- **Source:** Mall entrance CCTV sample  
+- **Link:** https://example.com/your-video-link  
+- **Notes:** 1920×1080, ~30 FPS, bidirectional flow near a single doorway
+
+*(If you used a local file like `input.mp4`, describe it briefly: e.g., “Recorded at XYZ canteen entrance on Oct 2025, ~2 min clip.”)*
 
 ---
 
 ## 🧩 Project Files
-| File | Description |
-|------|--------------|
-| `Footfall_Counter.ipynb` | Main Jupyter Notebook containing full code and pipeline |
-| `roi_config.yaml` | Configuration file for YOLO parameters, thresholds, and ROI height |
-| `output_footfall.mp4` | Final processed video with bounding boxes and IN/OUT overlays |
-| `events_humans.csv` | Log of all entry/exit events (with timestamps and IDs) |
-| `summary_humans.csv` | Final summarized IN/OUT counts |
-| `requirements.txt` | Python dependencies |
-| `README.md` | This documentation file |
+
+| File / Folder                      | Description                                                |
+|-----------------------------------|------------------------------------------------------------|
+| `footfall_counter.ipynb`          | Main notebook with full pipeline                           |
+| `roi_config.yaml`                 | Global + ROI configuration (auto-created if missing)       |
+| `yolov8n.pt`                      | YOLOv8n weights                                            |
+| `input.mp4`                       | Input video                                                |
+| `output_footfall.mp4`             | Processed video with overlays (generated)                  |
+| `events_humans.csv`               | Event-level logs with snapshots (generated)                |
+| `summary_humans.csv`              | Center IN/OUT summary (generated)                          |
+| `summary_humans_quadrants.csv`    | NE/NW/SE/SW IN/OUT summary (generated)                     |
+| `events_snaps/`                   | Event snapshots (generated)                                |
+| `LICENSE`                         | License file                                               |
+| `README.mkd`                      | This documentation                                         |
+
+> Note: Large binaries (`.mp4`, `.pt`) are present. Consider **Git LFS** for reliability.
 
 ---
 
-## 📦 Installation & Setup
+## ⚙️ Requirements
 
-### Step 1 — Clone or Download
-```bash
-git clone https://github.com/YOUR-USERNAME/Footfall-Counter.git
-cd Footfall-Counter
+- **Python** 3.10+
+- **Libraries:** `ultralytics`, `opencv-python`, `numpy`, `pandas`, `pyyaml`
+
+*(Optional `requirements.txt`)*:
