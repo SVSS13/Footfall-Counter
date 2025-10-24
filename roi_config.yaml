@@ -1,0 +1,36 @@
+global:
+  model_weights: yolov8n.pt
+  resize_width: 960
+  process_every_nth_frame: 1
+  conf_thresh: 0.35
+  iou_thresh: 0.45
+  min_confidence: 0.4
+  min_track_age: 6
+  cooldown_frames: 18
+  hysteresis_margin_pct: 25
+  min_normal_pixels: 4
+rois:
+  N:
+    band: null
+    height_pct: 7
+  NE:
+    band: null
+    height_pct: 9
+  E:
+    band: null
+    height_pct: 7
+  SE:
+    band: null
+    height_pct: 9
+  S:
+    band: null
+    height_pct: 7
+  SW:
+    band: null
+    height_pct: 9
+  W:
+    band: null
+    height_pct: 7
+  NW:
+    band: null
+    height_pct: 9

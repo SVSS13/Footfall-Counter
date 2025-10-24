@@ -1,0 +1,52 @@
+# 🧠 AI Assignment – Footfall Counter using Computer Vision
+
+## 📌 Project Overview
+This project implements a **Computer Vision–based Footfall Counter** that detects, tracks, and counts the number of people entering and exiting a defined region (ROI) in a video.
+
+It uses **YOLOv8** for human detection and a **custom centroid tracker** for maintaining IDs across frames. A **virtual ROI line** is drawn across the scene, and people are counted when crossing the line in either direction.
+
+---
+
+## 🎯 Objectives
+This project fulfills the following assignment objectives:
+
+1. Detect humans in a video stream. ✅  
+2. Track their movement frame by frame. ✅  
+3. Define a virtual **Region of Interest (ROI)**. ✅  
+4. Count how many people enter and exit by crossing the ROI. ✅  
+5. Display real-time visual overlays and final statistics. ✅  
+
+---
+
+## ⚙️ Tools & Libraries Used
+- **Language:** Python 3.10+
+- **Libraries:**
+  - `ultralytics` (YOLOv8)
+  - `opencv-python`
+  - `numpy`
+  - `pandas`
+  - `pyyaml`
+- **Tracker:** Custom Centroid Tracker (lightweight and efficient)
+- **Visualization:** OpenCV overlays and live HUD
+
+---
+
+## 🧩 Project Files
+| File | Description |
+|------|--------------|
+| `Footfall_Counter.ipynb` | Main Jupyter Notebook containing full code and pipeline |
+| `roi_config.yaml` | Configuration file for YOLO parameters, thresholds, and ROI height |
+| `output_footfall.mp4` | Final processed video with bounding boxes and IN/OUT overlays |
+| `events_humans.csv` | Log of all entry/exit events (with timestamps and IDs) |
+| `summary_humans.csv` | Final summarized IN/OUT counts |
+| `requirements.txt` | Python dependencies |
+| `README.md` | This documentation file |
+
+---
+
+## 📦 Installation & Setup
+
+### Step 1 — Clone or Download
+```bash
+git clone https://github.com/YOUR-USERNAME/Footfall-Counter.git
+cd Footfall-Counter
