@@ -31,8 +31,8 @@ Built with **YOLOv8**, **OpenCV**, and a **custom centroid tracker**—no extern
 
 > Replace this section with your actual source.
 
-- **Source:** Mall entrance CCTV sample  
-- **Link:** https://example.com/your-video-link  
+- **Source:** Vimeo-people walking - zeal
+- **Link:** https://vimeo.com/1117870699
 - **Notes:** 1920×1080, ~30 FPS, bidirectional flow near a single doorway
 
 *(If you used a local file like `input.mp4`, describe it briefly: e.g., “Recorded at XYZ canteen entrance on Oct 2025, ~2 min clip.”)*
