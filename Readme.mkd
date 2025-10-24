@@ -61,7 +61,7 @@ Built with **YOLOv8**, **OpenCV**, and a **custom centroid tracker**—no extern
 
 ## ⚙️ Requirements
 
-- **Python** 3.10+
+- **Python** 3.8>=
 - **Libraries:** `ultralytics`, `opencv-python`, `numpy`, `pandas`, `pyyaml`
 
 *(Optional `requirements.txt`)*:
